@@ -1,8 +1,22 @@
 #include <iostream>
+#include <vector>
 using std::cout;
 using std::endl;
+using std::vector;
 
 const int disk_num = 5;
+
+class struct_move
+{
+public:
+    int from = 0;
+    int to = 0;
+
+    bool operator==(struct_move & s)
+    {
+        return ((from == s.from) && (to == s.to));
+    }
+};
 
 class Peg
 {
@@ -57,6 +71,14 @@ public:
         return false;
     }
 
+    Peg & operator=(Peg & op)
+    {
+        Peg * out = new Peg;
+        for (int i = 0; i < disk_num; i++)
+            op.stack[i] = out->stack[i];
+        return *out;
+    }
+
     friend bool Move(Peg & from, Peg & to)
     {
         if (from.isEmpty())
@@ -72,7 +94,33 @@ public:
     }
 };
 
-void Print(Peg * p, int peg_num);
+void Print(Peg * p, int peg_num, vector<struct_move> moves = * new vector<struct_move>)
+{
+    if (!moves.empty())
+    {
+        for (int i = 0; i < (int)moves.size(); i++)
+        {
+            if (!Move(p[moves[i].from], p[moves[i].to]))
+            {
+                    cout << "error\n";
+            }
+        }
+    }
+    for (int i = disk_num - 1; i >= 0 ; i--)
+    {
+        for (int j = 0; j < peg_num; j++)
+        {
+            cout << " |";
+            if  (p[j].stack[i] == 0) cout << "   ";
+            else                     cout << "-" << p[j].stack[i] << "-";
+            cout << "|   ";
+        }
+        cout << endl;
+    }
+}
+
+bool Solve_outside(Peg * pegs, int peg_num);
+vector<struct_move> Solve(vector<struct_move> moves_so_far, Peg* pegs, int peg_num, int moves_limit, long initial_time);
 
 int main()
 {
@@ -85,23 +133,58 @@ int main()
 
     Print(pegs, 3);
 
-    Move(pegs[0], pegs[1]);
-    cout << endl;
-    Print(pegs,3);
+    vector<struct_move> m = Solve({}, pegs, 3, 100, 0);
+
+    for (int i = 0; i < m.size(); i++)
+        cout << i << " :  " << m[i].from << " -> " << m[i].to << endl;
+
     return 0;
 }
 
-void Print(Peg * p, int peg_num)
+bool Solve_outside(Peg * pegs, int peg_num)
 {
-    for (int i = disk_num - 1; i >= 0 ; i--)
-    {
-        for (int j = 0; j < peg_num; j++)
+//    vector<struct_move> empty;
+//    vector<struct_move> solution = Solve(empty, pegs, peg_num, 100, (long)ctime);
+    return true;
+}
+
+vector<struct_move> Solve(vector<struct_move> moves_so_far, Peg* pegs, int peg_num, int moves_limit, long initial_time)
+{
+    for (int i_from = 0; i_from < peg_num; i_from++)
+        for (int i_to = 0; i_to < peg_num; i_to++)
         {
-            cout << " |";
-            if  (p[j].stack[i] == 0) cout << "   ";
-            else                     cout << "-" << p[j].stack[i] << "-";
-            cout << "|   ";
+            if (i_from == i_to)
+                continue;
+            struct_move tmp;
+            tmp.to = i_from;
+            tmp.from = i_to;
+            if (moves_so_far.back() == tmp)
+                continue;
+
+            if ((int)moves_so_far.size() >= moves_limit)
+            {
+                cout << "Moves exceeds limits.\n";
+            }
+
+            if (pegs[0].isEmpty())
+                return moves_so_far;
+
+            Peg * pegs2 = new Peg [peg_num];
+            for (int i = 0; i < peg_num; i++)
+                pegs2[i] = pegs[i];
+
+            if (Move(pegs[i_from], pegs[i_to]))
+            {
+                struct_move tmp;
+                tmp.from = i_from;
+                tmp.to = i_to;
+
+                vector<struct_move> moves_so_far2;
+                moves_so_far2 = moves_so_far;
+                moves_so_far2.push_back(tmp);
+
+                Solve(moves_so_far2, pegs2, peg_num, moves_limit, initial_time);
+            }
         }
-        cout << endl;
-    }
+    return {};
 }
