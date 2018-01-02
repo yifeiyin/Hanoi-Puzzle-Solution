@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <ctime>
+#include <cmath>
 
 using std::cout;
 using std::endl;
@@ -10,6 +11,7 @@ using std::vector;
 
 const int disk_num = 6;
 const int peg_num = 3;
+const bool SLEEP = false;
 
 class Movement
 {
@@ -174,11 +176,8 @@ public:
 
     Pegs()
     {
-        pegs[0].Push(5);
-        pegs[0].Push(4);
-        pegs[0].Push(3);
-        pegs[0].Push(2);
-        pegs[0].Push(1);
+        for(int i = 0; i < disk_num; i++)
+            pegs[0].Push(disk_num - i);
     }
 
     void Print()
@@ -226,13 +225,10 @@ public:
     bool IsWhatWeWant()
     {
         Peg empty, full;
-        full.Push(5);
-        full.Push(4);
-        full.Push(3);
-        full.Push(2);
-        full.Push(1);
+        for (int i = 0; i < disk_num; i++)
+            full.Push(disk_num - i);
 
-        if (pegs[0] == empty && (/*pegs[1] == full || */pegs[2] == full))
+        if (pegs[0] == empty && (pegs[1] == full || pegs[2] == full))
             return true;
         return false;
     }
@@ -242,15 +238,17 @@ public:
     Record Solve(vector<Movement> movements_so_far, Pegs pegs_so_far, int search_limit, unsigned long initial_time, unsigned long time_limit)
     {
         if (pegs_so_far.IsWhatWeWant())
+        {
             return Record(movements_so_far, true);
+        }
 
         if ((int)movements_so_far.size() >= search_limit)
         {
-            cout << "Search limits exceeded: "; //DEBUG
+            cout << "Search limits exceeded(" << movements_so_far.size()<<"): "; //DEBUG
             for (unsigned long i = 0; i < movements_so_far.size(); i++) //DEBUG
                 cout << movements_so_far[i].GetString() << "  "; //DEBUG
             cout << endl;
-            this->Print(); //DEBUG
+            pegs_so_far.Print(); //DEBUG
             cout << endl; //DEBUG
             return Record(movements_so_far, false);
         }
@@ -260,6 +258,10 @@ public:
             cout << "Time limits exceeded\n"; // DEBUG
             return Record(movements_so_far, false);
         }
+
+        if (SLEEP)
+            //if (std::fmod((clock() - initial_time), (CLOCKS_PER_SEC/10.0)) >= CLOCKS_PER_SEC/10.0)
+                system("sleep 0.15"); //SLEEP
 
         for (int from = 0; from < peg_num; from++)
         {
@@ -289,9 +291,10 @@ public:
                 {
                     system("clear");
                     cout << "A valid move has been found: " << from << " -> " << to << endl; //DEBUG
-                    cout << "Previous moves: ";// DEBUG
-                    for (unsigned long debug = 0; debug < movements_so_far.size(); debug++)// DEBUG
-                        cout << movements_so_far[debug].GetString() << " ";// DEBUG
+//                    cout << "Previous moves("<<movements_so_far.size()<<"): ";// DEBUG
+//                    for (unsigned long debug = 0; debug < movements_so_far.size(); debug++)// DEBUG
+//                        cout << movements_so_far[debug].GetString() << " ";// DEBUG
+                    cout << "Time consumed: " << clock()/(CLOCKS_PER_SEC*0.1) << endl;
                     cout << "Current status:" << endl;// DEBUG
                     p.Print();// DEBUG
                     cout << endl; // DEBUG
@@ -302,7 +305,9 @@ public:
                     r = Solve(m, p, search_limit, initial_time, time_limit);
 
                     if (r.solved == true)
+                    {
                         return r;
+                    }
                 }
             }
         }
@@ -315,23 +320,10 @@ int main()
     Pegs p;
     p.Print();
 
-//    Pegs b;
-//    b.Print();
-
-//    cout << b.Move(0,2);
-
-//    cout << endl;
-//    b.Print();
-
-//    p = b;
-//    cout << endl;
-//    p.Print();
-
-    Pegs a;
-    Record main_r = p.Solve({}, p, 40, clock(), 30000);
+    Record main_r = p.Solve({}, p, 200, clock(), 1000000 * 5);
 
     if (main_r.solved)
-            cout << "Solution found:\n";
+            cout << "Solution found("<< main_r.movements.size() <<"):\n";
     else
             cout << "Failed to find a solution\n";
 
@@ -339,6 +331,8 @@ int main()
         cout << main_r.movements[i].GetString() << " ";
 
     cout << endl;
+    cout << "Time consumed: " << clock()/(CLOCKS_PER_SEC*0.1) << endl;
+
 
     return 0;
 }
