@@ -337,15 +337,6 @@ public:
                 {
                     if (CLEAR)
                         system("clear");
-<<<<<<< HEAD
-                    cout << "A valid move has been found: " << from << " -> " << to << endl; //DEBUG
-//                    cout << "Previous moves(" << movements_so_far.size() << "): ";// DEBUG
-//                    for (unsigned long debug = 0; debug < movements_so_far.size(); debug++)// DEBUG
-//                        cout << movements_so_far[debug].GetString() << " ";// DEBUG
-                    cout << "Time consumed: " << clock()/(CLOCKS_PER_SEC*1.0) << endl;
-                    cout << "Current status:" << endl;// DEBUG
-                    p.Print();// DEBUG
-=======
                     cout << "A valid move has been made: " << Movement(from,to).GetString() << endl; // DEBUG
 
 //                    cout << "Previous moves(" << movements_so_far.size() << "): "; // DEBUG
@@ -355,7 +346,6 @@ public:
                     cout << "Time consumed: " << clock()/(CLOCKS_PER_SEC*1.0) << endl; // DEBUG
                     cout << "Current status:" << endl; // DEBUG
                     p.Print(); // DEBUG
->>>>>>> origin/master
                     cout << endl; // DEBUG
 
                     vector<Movement> m = movements_so_far;
@@ -392,11 +382,7 @@ int main()
     Record result = ppp.Solve({}, ppp, 300, clock(), CLOCKS_PER_SEC * 10);
 
     if (result.solved)
-<<<<<<< HEAD
-            cout << "Solution found(" << result.movements.size() << "):\n";
-=======
             cout << "Solution found(" << result.movements.size() << "):" << endl;
->>>>>>> origin/master
     else
             cout << "Failed to find a solution." << endl;
 
