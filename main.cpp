@@ -9,9 +9,14 @@ using std::endl;
 using std::string;
 using std::vector;
 
-const int disk_num = 6;
+const int disk_num = 5;
 const int peg_num = 3;
+
 const bool SLEEP = false;
+// Set to true to make it run slower.
+
+const bool CLEAR = false;
+// Set to false when (1)running on Windows, or (2)a more accurate timing is required.
 
 class Movement
 {
@@ -289,7 +294,8 @@ public:
 
                 if (p.Move(from, to))
                 {
-                    system("clear");
+                    if (CLEAR)
+                        system("clear");
                     cout << "A valid move has been found: " << from << " -> " << to << endl; //DEBUG
 //                    cout << "Previous moves("<<movements_so_far.size()<<"): ";// DEBUG
 //                    for (unsigned long debug = 0; debug < movements_so_far.size(); debug++)// DEBUG
