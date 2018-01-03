@@ -18,6 +18,9 @@ const bool SLEEP = false;
 const bool CLEAR = false;
 // Set to false when (1)running on Windows, or (2)a more accurate timing is required.
 
+// +-----------------------------+
+// + * Movement consists of two integers indicating "from" location and "to" location.
+// +-----------------------------+
 class Movement
 {
 public:
@@ -45,6 +48,11 @@ public:
     }
 };
 
+// +-----------------------------+
+// + * Record consists of (1)a set of movements, and (2)a boolean variable indicating
+// +   wheather the set of movements is the solution or the failed attempt.
+// + * Record is only used when to return solutions in Pegs::Solve(...)
+// +-----------------------------+
 class Record
 {
 public:
@@ -67,6 +75,10 @@ public:
     }
 };
 
+// +-----------------------------+
+// + * Peg is the representation of a peg.
+// + * The most important parts are functions Pop(), Push(), Move().
+// +-----------------------------+
 class Peg
 {
 public:
@@ -76,6 +88,13 @@ public:
     {
         for (int i = 0; i < disk_num; i++)
             stack[i] = 0;
+    }
+
+    // Copy construct function
+    Peg (Peg & op)
+    {
+        for (int i = 0; i < disk_num; i++)
+            stack[i] = op.stack[i];
     }
 
     bool IsEmpty()
@@ -114,9 +133,7 @@ public:
         {
             if (stack[i] == 0)
             {
-                bool tmp = i != 0 && stack[i-1] > disk;
-                bool tmp2 = i == 0;
-                if (tmp || tmp2)
+                if (i == 0 || stack[i-1] > disk)
                 {
                     stack[i] = disk;
                     return true;
@@ -130,12 +147,7 @@ public:
         return false;
     }
 
-    Peg (Peg & op)
-    {
-        for (int i = 0; i < disk_num; i++)
-            stack[i] = op.stack[i];
-    }
-
+    // Assignment operator overload
     Peg & operator=(Peg & op)
     {
         if (*this == op)
@@ -174,6 +186,10 @@ public:
     }
 };
 
+
+// +------------------------+
+// + The toppest class
+// +------------------------+
 class Pegs
 {
 public:
@@ -183,6 +199,13 @@ public:
     {
         for(int i = 0; i < disk_num; i++)
             pegs[0].Push(disk_num - i);
+    }
+
+    // Copy construct function
+    Pegs(Pegs & op)
+    {
+        for (int i = 0; i < peg_num; i++)
+            pegs[i] = op.pegs[i];
     }
 
     void Print()
@@ -202,19 +225,7 @@ public:
 
     bool Move(int from, int to)
     {
-//        this->Print(); //DEBUG
-//        cout << from << " " << to << endl; //DEBUG
-//        bool tmp = pegs[from].MoveTo(pegs[to]); //DEBUG
-//        this->Print(); //DEBUG
-//        cout << endl; //DEBUG
-//        return tmp; //DEBUG
         return pegs[from].MoveTo(pegs[to]);
-    }
-
-    Pegs(Pegs & op)
-    {
-        for (int i = 0; i < peg_num; i++)
-            pegs[i] = op.pegs[i];
     }
 
     Pegs & operator=(Pegs & op)
@@ -227,6 +238,9 @@ public:
         return *this;
     }
 
+    //
+    // Anticipated result can be modified here.
+    //
     bool IsWhatWeWant()
     {
         Peg empty, full;
@@ -239,15 +253,20 @@ public:
     }
 
 
-
+    //
+    // This function can be done outside the class since it
+    // does not do anything to the member itself.
+    //
     Record Solve(vector<Movement> movements_so_far, Pegs pegs_so_far, int search_limit, unsigned long initial_time, unsigned long time_limit)
     {
+        // Check if it is the solution
         if (pegs_so_far.IsWhatWeWant())
         {
             return Record(movements_so_far, true);
         }
 
-        if ((int)movements_so_far.size() >= search_limit)
+        // Check if it is exceeding search limit
+        if (static_cast<int>(movements_so_far.size()) >= search_limit)
         {
             cout << "Search limits exceeded(" << movements_so_far.size()<<"): "; //DEBUG
             for (unsigned long i = 0; i < movements_so_far.size(); i++) //DEBUG
@@ -255,12 +274,14 @@ public:
             cout << endl;
             pegs_so_far.Print(); //DEBUG
             cout << endl; //DEBUG
+
             return Record(movements_so_far, false);
         }
 
+        // Check if it is exceeding time limit
         if (clock() - initial_time > time_limit)
         {
-            cout << "Time limits exceeded\n"; // DEBUG
+            cout << "Time limits exceeded." << endl; // DEBUG
             return Record(movements_so_far, false);
         }
 
@@ -274,12 +295,10 @@ public:
             {
                 if (from == to)
                     continue;
+
+                // Check if the movement can cause infinite self looping
                 if (!movements_so_far.empty())
                 {
-//                    if (movements_so_far.back().from == to &&
-//                            movements_so_far.back().to == from)
-//                        continue;
-
                     if (movements_so_far.back().to == from)
                         continue;
 
@@ -287,7 +306,6 @@ public:
                         if (movements_so_far[movements_so_far.size()-2].from == to &&
                                 movements_so_far[movements_so_far.size()-2].to == from)
                             continue;
-
                 }
 
                 Pegs p = pegs_so_far;
@@ -304,6 +322,7 @@ public:
                     cout << "Current status:" << endl;// DEBUG
                     p.Print();// DEBUG
                     cout << endl; // DEBUG
+
                     vector<Movement> m = movements_so_far;
                     m.push_back(Movement(from, to));
 
@@ -323,18 +342,18 @@ public:
 
 int main()
 {
-    Pegs p;
-    p.Print();
+    Pegs ppp;
+    ppp.Print();
 
-    Record main_r = p.Solve({}, p, 200, clock(), 1000000 * 5);
+    Record result = ppp.Solve({}, ppp, 200, clock(), CLOCKS_PER_SEC * 5);
 
-    if (main_r.solved)
-            cout << "Solution found("<< main_r.movements.size() <<"):\n";
+    if (result.solved)
+            cout << "Solution found("<< result.movements.size() <<"):\n";
     else
             cout << "Failed to find a solution\n";
 
-    for (unsigned long i = 0; i < main_r.movements.size(); i++)
-        cout << main_r.movements[i].GetString() << " ";
+    for (unsigned long i = 0; i < result.movements.size(); i++)
+        cout << result.movements[i].GetString() << " ";
 
     cout << endl;
     cout << "Time consumed: " << clock()/(CLOCKS_PER_SEC*1.0) << endl;
