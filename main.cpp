@@ -256,7 +256,6 @@ public:
         if (clock() - initial_time > time_limit)
         {
             cout << "Time limits exceeded\n"; // DEBUG
-            cout << "Time limits exceeded." << endl; // DEBUG
             return Record(movements_so_far, false);
         }
 
@@ -290,11 +289,12 @@ public:
 
                 if (p.Move(from, to))
                 {
+                    system("clear");
                     cout << "A valid move has been found: " << from << " -> " << to << endl; //DEBUG
 //                    cout << "Previous moves("<<movements_so_far.size()<<"): ";// DEBUG
 //                    for (unsigned long debug = 0; debug < movements_so_far.size(); debug++)// DEBUG
 //                        cout << movements_so_far[debug].GetString() << " ";// DEBUG
-                    cout << "Time consumed: " << clock()/(CLOCKS_PER_SEC*1.0) << endl;
+                    cout << "Time consumed: " << clock()/(CLOCKS_PER_SEC*0.1) << endl;
                     cout << "Current status:" << endl;// DEBUG
                     p.Print();// DEBUG
                     cout << endl; // DEBUG
@@ -320,7 +320,7 @@ int main()
     Pegs p;
     p.Print();
 
-    Record main_r = p.Solve({}, p, 100000, clock(), CLOCKS_PER_SEC * 15);
+    Record main_r = p.Solve({}, p, 200, clock(), 1000000 * 5);
 
     if (main_r.solved)
             cout << "Solution found("<< main_r.movements.size() <<"):\n";
@@ -331,7 +331,7 @@ int main()
         cout << main_r.movements[i].GetString() << " ";
 
     cout << endl;
-    cout << "Time consumed: " << clock()/(CLOCKS_PER_SEC*1.0) << endl;
+    cout << "Time consumed: " << clock()/(CLOCKS_PER_SEC*0.1) << endl;
 
 
     return 0;
