@@ -9,7 +9,7 @@ using std::endl;
 using std::string;
 using std::vector;
 
-const int disk_num = 5;
+const int disk_num = 4;
 const int peg_num = 3;
 
 const bool SLEEP = false;
@@ -44,7 +44,7 @@ public:
 
     string GetString()
     {
-        return std::to_string(from) + " -> " + std::to_string(to);
+        return std::to_string(from+1) + " -> " + std::to_string(to+1);
     }
 };
 
@@ -197,8 +197,7 @@ public:
 
     Pegs()
     {
-        for(int i = 0; i < disk_num; i++)
-            pegs[0].Push(disk_num - i);
+
     }
 
     // Copy construct function
@@ -243,11 +242,25 @@ public:
     //
     bool IsWhatWeWant()
     {
-        Peg empty, full;
-        for (int i = 0; i < disk_num; i++)
-            full.Push(disk_num - i);
+//        Peg empty, full;
+//        for (int i = 0; i < disk_num; i++)
+//            full.Push(disk_num - i);
 
-        if (pegs[0] == empty && (pegs[1] == full || pegs[2] == full))
+//        if (pegs[0] == empty && (pegs[1] == full || pegs[2] == full))
+//            return true;
+//        return false;
+
+        Peg want_we_want [3];
+        want_we_want[2].Push(4);
+        want_we_want[2].Push(3);
+        want_we_want[1].Push(2);
+        want_we_want[2].Push(1);
+//        want_we_want[2].Push(5);
+//        want_we_want[2].Push(6);
+
+        if (pegs[0] == want_we_want[0] &&
+                pegs[1] == want_we_want[1] &&
+                pegs[2] == want_we_want[2])
             return true;
         return false;
     }
@@ -268,7 +281,7 @@ public:
         // Check if it is exceeding search limit
         if (static_cast<int>(movements_so_far.size()) >= search_limit)
         {
-            cout << "Search limits exceeded(" << movements_so_far.size()<<"): "; //DEBUG
+            cout << "Search limits exceeded(" << movements_so_far.size() <<"): "; //DEBUG
             for (unsigned long i = 0; i < movements_so_far.size(); i++) //DEBUG
                 cout << movements_so_far[i].GetString() << "  "; //DEBUG
             cout << endl;
@@ -302,6 +315,7 @@ public:
                     if (movements_so_far.back().to == from)
                         continue;
 
+                    // [!]
                     if (movements_so_far.size() >= 2)
                         if (movements_so_far[movements_so_far.size()-2].from == to &&
                                 movements_so_far[movements_so_far.size()-2].to == from)
@@ -310,17 +324,28 @@ public:
 
                 Pegs p = pegs_so_far;
 
+                cout << "  @Checking: " << Movement(from,to).GetString() << endl; // DEBUG
+                cout << "  @Previous moves(" << movements_so_far.size() << "): "; // DEBUG
+                for (unsigned long debug = 0; debug < movements_so_far.size(); debug++) // DEBUG
+                    cout << movements_so_far[debug].GetString() << " "; // DEBUG
+
+                cout << endl << "  @Current status:" << endl; // DEBUG
+                p.Print(); // DEBUG
+                cout << endl; // DEBUG
+
                 if (p.Move(from, to))
                 {
                     if (CLEAR)
                         system("clear");
-                    cout << "A valid move has been found: " << from << " -> " << to << endl; //DEBUG
-//                    cout << "Previous moves("<<movements_so_far.size()<<"): ";// DEBUG
-//                    for (unsigned long debug = 0; debug < movements_so_far.size(); debug++)// DEBUG
-//                        cout << movements_so_far[debug].GetString() << " ";// DEBUG
-                    cout << "Time consumed: " << clock()/(CLOCKS_PER_SEC*1.0) << endl;
-                    cout << "Current status:" << endl;// DEBUG
-                    p.Print();// DEBUG
+                    cout << "A valid move has been made: " << Movement(from,to).GetString() << endl; // DEBUG
+
+//                    cout << "Previous moves(" << movements_so_far.size() << "): "; // DEBUG
+//                    for (unsigned long debug = 0; debug < movements_so_far.size(); debug++) // DEBUG
+//                        cout << movements_so_far[debug].GetString() << " "; // DEBUG
+
+                    cout << "Time consumed: " << clock()/(CLOCKS_PER_SEC*1.0) << endl; // DEBUG
+                    cout << "Current status:" << endl; // DEBUG
+                    p.Print(); // DEBUG
                     cout << endl; // DEBUG
 
                     vector<Movement> m = movements_so_far;
@@ -329,6 +354,12 @@ public:
                     Record r;
                     r = Solve(m, p, search_limit, initial_time, time_limit);
 
+                    if (r.solved == false)
+                    {
+                        cout << "Reaching a dead end with (" << r.movements.size() << ") moves"
+                                ", rolling back." << endl;
+
+                    }
                     if (r.solved == true)
                     {
                         return r;
@@ -336,21 +367,24 @@ public:
                 }
             }
         }
-        return Record (false);
+        return Record(movements_so_far, false);
     }
 };
 
 int main()
 {
     Pegs ppp;
-    ppp.Print();
 
-    Record result = ppp.Solve({}, ppp, 200, clock(), CLOCKS_PER_SEC * 5);
+    for(int i = 0; i < disk_num; i++)
+        ppp.pegs[0].Push(disk_num - i);
+
+
+    Record result = ppp.Solve({}, ppp, 300, clock(), CLOCKS_PER_SEC * 10);
 
     if (result.solved)
-            cout << "Solution found("<< result.movements.size() <<"):\n";
+            cout << "Solution found(" << result.movements.size() << "):" << endl;
     else
-            cout << "Failed to find a solution\n";
+            cout << "Failed to find a solution." << endl;
 
     for (unsigned long i = 0; i < result.movements.size(); i++)
         cout << result.movements[i].GetString() << " ";
