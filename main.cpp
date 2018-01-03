@@ -294,7 +294,7 @@ public:
 //                    cout << "Previous moves("<<movements_so_far.size()<<"): ";// DEBUG
 //                    for (unsigned long debug = 0; debug < movements_so_far.size(); debug++)// DEBUG
 //                        cout << movements_so_far[debug].GetString() << " ";// DEBUG
-                    cout << "Time consumed: " << clock()/(CLOCKS_PER_SEC*0.1) << endl;
+                    cout << "Time consumed: " << clock()/(CLOCKS_PER_SEC*1.0) << endl;
                     cout << "Current status:" << endl;// DEBUG
                     p.Print();// DEBUG
                     cout << endl; // DEBUG
@@ -331,7 +331,7 @@ int main()
         cout << main_r.movements[i].GetString() << " ";
 
     cout << endl;
-    cout << "Time consumed: " << clock()/(CLOCKS_PER_SEC*0.1) << endl;
+    cout << "Time consumed: " << clock()/(CLOCKS_PER_SEC*1.0) << endl;
 
 
     return 0;
