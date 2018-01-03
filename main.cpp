@@ -268,7 +268,7 @@ public:
         // Check if it is exceeding search limit
         if (static_cast<int>(movements_so_far.size()) >= search_limit)
         {
-            cout << "Search limits exceeded(" << movements_so_far.size()<<"): "; //DEBUG
+            cout << "Search limits exceeded(" << movements_so_far.size() <<"): "; //DEBUG
             for (unsigned long i = 0; i < movements_so_far.size(); i++) //DEBUG
                 cout << movements_so_far[i].GetString() << "  "; //DEBUG
             cout << endl;
@@ -315,7 +315,7 @@ public:
                     if (CLEAR)
                         system("clear");
                     cout << "A valid move has been found: " << from << " -> " << to << endl; //DEBUG
-//                    cout << "Previous moves("<<movements_so_far.size()<<"): ";// DEBUG
+//                    cout << "Previous moves(" << movements_so_far.size() << "): ";// DEBUG
 //                    for (unsigned long debug = 0; debug < movements_so_far.size(); debug++)// DEBUG
 //                        cout << movements_so_far[debug].GetString() << " ";// DEBUG
                     cout << "Time consumed: " << clock()/(CLOCKS_PER_SEC*1.0) << endl;
@@ -348,7 +348,7 @@ int main()
     Record result = ppp.Solve({}, ppp, 200, clock(), CLOCKS_PER_SEC * 5);
 
     if (result.solved)
-            cout << "Solution found("<< result.movements.size() <<"):\n";
+            cout << "Solution found(" << result.movements.size() << "):\n";
     else
             cout << "Failed to find a solution\n";
 
